@@ -5,8 +5,8 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { baselineAllPairs } from '../baseline/naive.mjs';
 import {
-  allPairsViewshed,
   computeViewshed,
   createField,
   fieldStats,
@@ -55,8 +55,8 @@ const AZ = 512;
 const fast = computeViewshed(f128, OBS, { azBins: AZ });
 
 // A2 -- definitional O(n^2) oracle reproduces the fast mask exactly
-const allPairs = allPairsViewshed(f128, OBS, { azBins: AZ });
-check('A2 fast == allPairs(O(n^2)) mask', maskDiff(fast.visible, allPairs.visible) === 0,
+const allPairs = baselineAllPairs(f128, OBS, { azBins: AZ });
+check('A2 fast == baseline/naive.mjs O(n^2) mask', maskDiff(fast.visible, allPairs.visible) === 0,
   `diff=${maskDiff(fast.visible, allPairs.visible)} fast=${fast.visibleTerrain} allPairs=${allPairs.visibleTerrain}`);
 
 // A3 -- second traversal path (per-sector lists, no global sort) reproduces it too
@@ -224,7 +224,7 @@ check('A5 O(n^2) oracle does strictly more work', allPairs.comparisons > 200000,
         const oy = Math.floor(rnd() * h);
         const obs = { x: ox, y: oy, height: rnd() * 10 * sc };
         const got = computeViewshed(f, obs, { azBins: az });
-        const want = allPairsViewshed(f, obs, { azBins: az });
+        const want = baselineAllPairs(f, obs, { azBins: az });
         cases++;
         const d = maskDiff(got.visible, want.visible);
         if (d !== 0) {
@@ -240,12 +240,12 @@ check('A5 O(n^2) oracle does strictly more work', allPairs.comparisons > 200000,
     const obs = { x: Math.floor(w / 2), y: Math.floor(h / 2), height: 3 };
     for (const az of [16, 128]) {
       cases++;
-      if (maskDiff(computeViewshed(flat, obs, { azBins: az }).visible, allPairsViewshed(flat, obs, { azBins: az }).visible) !== 0) mismatches++;
+      if (maskDiff(computeViewshed(flat, obs, { azBins: az }).visible, baselineAllPairs(flat, obs, { azBins: az }).visible) !== 0) mismatches++;
       const z = new Float64Array(w * h).fill(1);
       z[obs.y * w + obs.x + 1] = 900;
       const f = createField(w, h, z);
       cases++;
-      if (maskDiff(computeViewshed(f, obs, { azBins: az }).visible, allPairsViewshed(f, obs, { azBins: az }).visible) !== 0) mismatches++;
+      if (maskDiff(computeViewshed(f, obs, { azBins: az }).visible, baselineAllPairs(f, obs, { azBins: az }).visible) !== 0) mismatches++;
     }
   }
   check('A17 seeded random + degenerate fixtures: fast == O(n^2) oracle', mismatches === 0,

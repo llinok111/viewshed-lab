@@ -6,7 +6,8 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { allPairsViewshed, computeViewshed, createField } from '../src/core.mjs';
+import { baselineAllPairs } from '../baseline/naive.mjs';
+import { computeViewshed, createField } from '../src/core.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -64,7 +65,7 @@ let baseComparisons = 0;
 let baseDiff = 0;
 for (let i = 0; i < 3; i++) {
   const t0 = performance.now();
-  const r = allPairsViewshed(f128, OBS128, { azBins: AZ128 });
+  const r = baselineAllPairs(f128, OBS128, { azBins: AZ128 });
   base128.push(performance.now() - t0);
   baseComparisons = r.comparisons;
   baseDiff = maskDiffSafe(r, computeViewshed(f128, OBS128, { azBins: AZ128 }));
@@ -89,7 +90,7 @@ const result = {
     cellsPerMs: round2((f256.w * f256.h) / warmStats.median),
   },
   baseline: {
-    label: 'definitional O(n^2) all-pairs scan (src/core.mjs allPairsViewshed)',
+    label: 'definitional O(n^2) all-pairs scan (baseline/naive.mjs, own file)',
     grid: '128x128',
     cells: f128.w * f128.h,
     azBins: AZ128,

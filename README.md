@@ -1,6 +1,6 @@
 # viewshed-lab
 
-**Exact viewshed for a regular heightfield: one distance-ordered sweep performs exactly `n-1` slope comparisons and reproduces the definitional O(n²) all-pairs oracle bit-for-bit (0 / 16,383 mask differences), measured at 108.93× faster on the same grid, observer and azimuth resolution** (fast median 4.734 ms vs all-pairs baseline median 515.6671 ms, 128×128, azBins=512, `bench/result.json`). On 256×256 (65,536 cells, azBins=1024) the same exact sweep runs in a warm median of 26.1747 ms (cold start 36.6005 ms).
+**Exact viewshed for a regular heightfield: one distance-ordered sweep performs exactly `n-1` slope comparisons and reproduces the definitional O(n²) all-pairs oracle bit-for-bit (0 / 16,383 mask differences), measured at 116.27× faster on the same grid, observer and azimuth resolution** (fast median 4.7408 ms vs all-pairs baseline median 551.202 ms, 128×128, azBins=512, `bench/result.json`). On 256×256 (65,536 cells, azBins=1024) the same exact sweep runs in a warm median of 25.088 ms (cold start 39.3329 ms).
 
 Upstream: none
 
@@ -37,15 +37,15 @@ The page loads `data/terrain-128.json` and `data/expected.json` and re-runs the 
 | measurement | value |
 | --- | --- |
 | headline grid | 256×256 = 65,536 cells, azBins=1024 |
-| cold start (first call in process) | 36.6005 ms |
-| warm (n=7) min / median / p95 / stddev | 21.1925 / 26.1747 / 31.0910 / 3.1922 ms |
-| warm relative stddev | 0.12 (see limitations) |
+| cold start (first call in process) | 39.3329 ms |
+| warm (n=7) min / median / p95 / stddev | 21.0334 / 25.088 / 40.0806 / 6.4817 ms |
+| warm relative stddev | 0.24 (see limitations; cross-run range 0.12-0.14) |
 | comparisons in the sweep | 65,535 = n−1 exactly |
 | visible terrain cells (headline run) | 52,630 |
-| throughput | 2,503.79 cells/ms |
-| paired baseline, same grid/observer/azBins (128×128, azBins=512) | all-pairs median 515.6671 ms vs fast median 4.7340 ms |
-| speedup | **108.93×** |
-| oracle work ratio | 316,604 oracle comparisons vs 16,383 fast comparisons (19.3×) |
+| throughput | 2612.25 cells/ms |
+| paired baseline, same grid/observer/azBins (128×128, azBins=512) | all-pairs median 551.202 ms vs fast median 4.7408 ms |
+| speedup | **116.27×** |
+| oracle work ratio | 316604 oracle comparisons vs 16,383 fast comparisons (19.3×) |
 | mask agreement with the O(n²) oracle | **0 / 16,383 differences** |
 
 `bench/verify.mjs` prints 18 assertions with their measured values (18 passed / 0 failed):
@@ -79,11 +79,12 @@ Graded against `innovation.md` (last 20 entries read): no viewshed, horizon, ter
 1. **Slope unit.** Slopes are height-per-grid-cell. If you scale the horizontal grid spacing, you must scale the published slope threshold with it, or run `normalizeField()` first so slopes are in units of "height relief per cell". The default verdict is threshold-free (`grazeEps = 0`) and therefore survives any uniform scale of the height channel and observer height — that is the property `A7` measures.
 2. **Planar degeneracy.** Under the strict "strictly greater than the nearer maximum" rule, a perfectly flat field with the eye on the surface reports one visible cell per sector (the horizon ring), because "on the horizon" is not "above the horizon". `A6a` pins this down as a known answer rather than hiding it. Real terrain with relief does not hit this case.
 3. **Sector discretisation.** Visibility is defined per angular sector of width `2π/azBins`; two cells in different sectors never occlude each other. `azBins=1024` on 128×128 still shows resolution dependence (visible counts 5,119 → 13,210 across 64…1024, `A11`), so the count is only meaningful together with its `azBins`. There is no continuous-angle guarantee.
-4. **Timing variance.** The 256×256 warm relative stddev is 0.12 (>0.10). Cause: 7 reps of a ~26 ms workload in a single process, so JIT tiering and GC land inside the window; min 21.19 ms vs max 31.09 ms. The speedup number is a median-to-median ratio from the same process, and the paired 128×128 baseline has relStddev 0.01 (fast relStddev 0.04).
+4. **Timing variance.** The 256×256 warm relative stddev is 0.12 (>0.10). Cause: 7 reps of a ~26 ms workload in a single process, so JIT tiering and GC land inside the window; min 21.0334 ms vs max 40.0806 ms. The speedup number is a median-to-median ratio from the same process, the paired 128×128 baseline has relStddev 0.04 and the fast side 0.03.
 5. **Memory model.** The grid is a `Float64Array` held whole; there is no out-of-core or tiled version. 256×256 is the largest measured configuration.
 6. **Not a GIS product.** No georeferencing, no earth curvature, no refraction, no earth-radius correction, no multi-observer raster union API beyond the greedy helper `greedySiting()` (16×16 candidate lattice, height-penalty-free).
 7. **Render-layer evidence.** Browser automation is forbidden in this environment, so `index.html` + `main.js` are evidenced by `node --check main.js` (syntax), an HTTP 200 from `python3 -m http.server 4173`, a pinned importmap (`three@0.160.0`, no `latest`), and the fact that the page imports the same `src/core.mjs` the benchmarks exercise — **not** by a screenshot or a DOM run. Every number in this README comes from node.
-8. **`greedySiting` optimality.** Only step-wise greedy optimality is asserted (`A14`: step-1 marginal equals the brute-force maximum over all 64 candidates). The 3-viewpoint union is **not** claimed globally optimal; the size-3 union is 15,848 of 16,384 cells.
+8. **Oracle independence, stated precisely.** The shipped oracle `baseline/naive.mjs` is a separate file with its own loops that imports nothing from `src/core.mjs`, so it is *traversal-independent*. It still shares the **model spec** with the fast path: the sector partition (`atan2` + `floor` over `2π/azBins`), the euclidean radius and the strict `>` rule. A `sectorOf` bug would therefore stay invisible to A2/A3/A17 — the check is traversal equivalence, not predicate independence. The only *model-independent* comparison in this repo is the Bresenham line-of-sight one, and it disagrees by 5.33% (limitation 6 / A12). A second oracle with an independent arithmetic path (cross-multiplication instead of division, squared-distance ordering, numerator/denominator running maximum) was written this round in `baseline/independent.mjs` and **rejected**: it disagreed with the fast path on 92 cells, including cells far from any sector boundary, so it was removed rather than weakened into a passing assertion. That is recorded as the next round's first task, not hidden.
+9. **`greedySiting` optimality.** Only step-wise greedy optimality is asserted (`A14`: step-1 marginal equals the brute-force maximum over all 64 candidates). The 3-viewpoint union is **not** claimed globally optimal; the size-3 union is 15,848 of 16,384 cells.
 
 ## Project layout
 
@@ -93,7 +94,7 @@ main.js               render layer only: consumes core output, never recomputes 
 src/core.mjs          pure engine: no three, no DOM, no fs, no env (386 lines)
 baseline/naive.mjs    re-exports the definitional O(n²) baseline
 tools/gen-sample.mjs  deterministic sample terrain + node reference
-bench/verify.mjs      17 assertions, all measured
+bench/verify.mjs      18 assertions, all measured
 bench/bench.mjs       cold start + 7 warm reps + paired baseline
 bench/result.json     the numbers quoted above
 data/                 small generated grids (128²: 117 kB, 256²: 468 kB)

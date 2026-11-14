@@ -3,7 +3,7 @@
   "node": "v24.19.0",
   "coldStart": {
     "label": "first computeViewshed call in this process",
-    "ms": 36.6005
+    "ms": 39.3329
   },
   "headline": {
     "grid": "256x256",
@@ -17,51 +17,51 @@
     "visibleTerrain": 52630,
     "comparisons": 65535,
     "maxSlope": 1.160447,
-    "warmMs": 26.1747,
+    "warmMs": 25.088,
     "warmStats": {
       "n": 7,
-      "min": 21.1925,
-      "median": 26.1747,
-      "p95": 31.091,
-      "max": 31.091,
-      "mean": 26.0715,
-      "stddev": 3.1922,
-      "relStddev": 0.12
+      "min": 21.0334,
+      "median": 25.088,
+      "p95": 40.0806,
+      "max": 40.0806,
+      "mean": 26.522,
+      "stddev": 6.4817,
+      "relStddev": 0.24
     },
-    "cellsPerMs": 2503.79
+    "cellsPerMs": 2612.25
   },
   "baseline": {
-    "label": "definitional O(n^2) all-pairs scan (src/core.mjs allPairsViewshed)",
+    "label": "definitional O(n^2) all-pairs scan (baseline/naive.mjs, own file)",
     "grid": "128x128",
     "cells": 16384,
     "azBins": 512,
     "comparisons": 316604,
-    "ms": 515.6671,
+    "ms": 551.202,
     "msStats": {
       "n": 3,
-      "min": 510.9875,
-      "median": 515.6671,
-      "p95": 524.7939,
-      "max": 524.7939,
-      "mean": 517.1495,
-      "stddev": 7.0215,
-      "relStddev": 0.01
+      "min": 515.467,
+      "median": 551.202,
+      "p95": 560.1958,
+      "max": 560.1958,
+      "mean": 542.2883,
+      "stddev": 23.6592,
+      "relStddev": 0.04
     },
     "maskDiffVsFast": 0
   },
   "paired128": {
-    "fastMs": 4.734,
+    "fastMs": 4.7408,
     "fastStats": {
       "n": 5,
-      "min": 4.5578,
-      "median": 4.734,
-      "p95": 4.9958,
-      "max": 4.9958,
-      "mean": 4.7564,
-      "stddev": 0.1948,
-      "relStddev": 0.04
+      "min": 4.6908,
+      "median": 4.7408,
+      "p95": 4.9883,
+      "max": 4.9883,
+      "mean": 4.7912,
+      "stddev": 0.1221,
+      "relStddev": 0.03
     },
-    "speedupVsAllPairs": 108.93,
+    "speedupVsAllPairs": 116.27,
     "comparisonRatio": 19.3
   },
   "interpret": {
