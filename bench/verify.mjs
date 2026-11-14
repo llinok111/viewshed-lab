@@ -194,5 +194,63 @@ check('A5 O(n^2) oracle does strictly more work', allPairs.comparisons > 200000,
     `cells=${r.cells} visible=${r.visibleTerrain} comparisons=${r.comparisons} maxSlope=${r.maxSlope.toFixed(4)} time=${(t1 - t0).toFixed(2)}ms`);
 }
 
+
+// A17 -- seeded random fixtures: the exactness claim must not depend on one hand-picked
+// terrain. Shapes, observer positions, azimuth resolutions and height scales vary;
+// spikes, flat fields and a sub-cell obstacle are included on purpose.
+{
+  let seed = 0x5eed1234;
+  const rnd = () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const shapes = [[17, 23], [24, 24], [9, 31], [64, 5], [33, 33], [12, 40]];
+  const azList = [7, 16, 64, 257];
+  const scales = [1e-9, 1, 1e9];
+  let cases = 0;
+  let mismatches = 0;
+  let firstBad = null;
+  for (const [w, h] of shapes) {
+    for (const az of azList) {
+      for (let rep = 0; rep < 3; rep++) {
+        const sc = scales[rep];
+        const z = new Float64Array(w * h);
+        for (let i = 0; i < z.length; i++) z[i] = rnd() * 100 * sc;
+        if (rep === 1) z[Math.floor(rnd() * z.length)] = 1e4 * sc; // single-cell spike
+        const f = createField(w, h, z);
+        const ox = Math.floor(rnd() * w);
+        const oy = Math.floor(rnd() * h);
+        const obs = { x: ox, y: oy, height: rnd() * 10 * sc };
+        const got = computeViewshed(f, obs, { azBins: az });
+        const want = allPairsViewshed(f, obs, { azBins: az });
+        cases++;
+        const d = maskDiff(got.visible, want.visible);
+        if (d !== 0) {
+          mismatches++;
+          if (!firstBad) firstBad = `${w}x${h} azBins=${az} rep=${rep} scale=${sc} obs=(${ox},${oy}) diff=${d}`;
+        }
+      }
+    }
+  }
+  // degenerate fixtures: exactly flat, and a one-cell obstacle next to the observer
+  for (const [w, h] of [[31, 17], [8, 8]]) {
+    const flat = createField(w, h, new Array(w * h).fill(5));
+    const obs = { x: Math.floor(w / 2), y: Math.floor(h / 2), height: 3 };
+    for (const az of [16, 128]) {
+      cases++;
+      if (maskDiff(computeViewshed(flat, obs, { azBins: az }).visible, allPairsViewshed(flat, obs, { azBins: az }).visible) !== 0) mismatches++;
+      const z = new Float64Array(w * h).fill(1);
+      z[obs.y * w + obs.x + 1] = 900;
+      const f = createField(w, h, z);
+      cases++;
+      if (maskDiff(computeViewshed(f, obs, { azBins: az }).visible, allPairsViewshed(f, obs, { azBins: az }).visible) !== 0) mismatches++;
+    }
+  }
+  check('A17 seeded random + degenerate fixtures: fast == O(n^2) oracle', mismatches === 0,
+    `${cases} cases (shapes ${shapes.map((s) => s.join('x')).join(',')}, azBins ${azList.join(',')}, scales 1e-9/1/1e9, random spikes, flat fields, one-cell obstacle) mismatches=${mismatches}${firstBad ? ` first=${firstBad}` : ''}`);
+}
+
 console.log(`\nRESULT ${failed === 0 ? 'PASS' : 'FAIL'}: ${passed} passed / ${failed} failed`);
 process.exit(failed === 0 ? 0 : 1);

@@ -48,7 +48,7 @@ The page loads `data/terrain-128.json` and `data/expected.json` and re-runs the 
 | oracle work ratio | 316,604 oracle comparisons vs 16,383 fast comparisons (19.3×) |
 | mask agreement with the O(n²) oracle | **0 / 16,383 differences** |
 
-`bench/verify.mjs` prints 17 assertions with their measured values (17 passed / 0 failed):
+`bench/verify.mjs` prints 18 assertions with their measured values (18 passed / 0 failed):
 
 - `A1` sample generation is byte-deterministic (sha256 of both terrains identical across regeneration).
 - `A2` fast mask == definitional O(n²) `allPairsViewshed` mask, 0 diff.
@@ -62,6 +62,7 @@ The page loads `data/terrain-128.json` and `data/expected.json` and re-runs the 
 - `A10` a repeat run is bit-identical, including the raw slope channel.
 - `A11` azBins sweep 64…1024 stays well-formed with no NaN slope.
 - `A12/A13` cross-model honesty: see below.
+- `A17` 80 seeded random + degenerate fixtures (6 shapes, azBins 7/16/64/257, height scales 1e-9/1/1e9, random single-cell spikes, flat fields, a one-cell obstacle): fast mask == O(n²) oracle mask on **80/80 cases, 0 mismatches**. The exactness claim therefore does not rest on the hand-picked sample terrain.
 
 ### The honest negative result: 5.33% cross-model gap
 
