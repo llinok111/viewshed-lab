@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>viewshed-lab · exact viewshed for heightfields</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #07090d; color: #d7e0ea; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  #app { display: flex; height: 100%; }
+  #view { flex: 1 1 auto; position: relative; }
+  #panel { width: 320px; padding: 14px; overflow-y: auto; background: #0c1118; border-left: 1px solid #1d2635; }
+  h1 { font-size: 14px; margin: 0 0 8px; color: #eaf2ff; }
+  label { display: block; margin: 12px 0 4px; color: #8ea3bb; }
+  input[type=range] { width: 100%; }
+  .num { color: #7ee0b8; }
+  .warn { color: #ffb454; }
+  .bad { color: #ff6b6b; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  td { padding: 2px 0; vertical-align: top; }
+  td:last-child { text-align: right; color: #eaf2ff; }
+  .hint { color: #6b7d94; margin-top: 12px; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<div id="app">
+  <div id="view"></div>
+  <aside id="panel">
+    <h1>viewshed-lab</h1>
+    <div>Exact horizon-limited viewshed, computed by the same <code>src/core.mjs</code> that node runs.</div>
+    <label>observer height <span class="num" id="hVal">12</span></label>
+    <input type="range" id="height" min="0" max="80" step="1" value="12" />
+    <label>azimuth sectors <span class="num" id="azVal">512</span></label>
+    <input type="range" id="azBins" min="64" max="1024" step="64" value="512" />
+    <table>
+      <tr><td>cells in grid</td><td id="cells">-</td></tr>
+      <tr><td>slope comparisons</td><td id="comps">-</td></tr>
+      <tr><td>visible terrain cells</td><td id="vis">-</td></tr>
+      <tr><td>compute time (ms)</td><td id="ms">-</td></tr>
+    </table>
+    <label>node reference for the default view (data/expected.json)</label>
+    <table>
+      <tr><td>reference visible</td><td id="refVis">-</td></tr>
+      <tr><td>reference comparisons</td><td id="refComps">-</td></tr>
+      <tr><td>agreement</td><td id="agree">-</td></tr>
+    </table>
+    <div class="hint">Click the terrain to move the observer. Colour: green = above the horizon, dark slate = below it.</div>
+  </aside>
+</div>
+<script type="module" src="./main.js"></script>
+</body>
+</html>

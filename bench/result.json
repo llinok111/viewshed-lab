@@ -1,0 +1,71 @@
+{
+  "generatedBy": "bench/bench.mjs",
+  "node": "v24.19.0",
+  "coldStart": {
+    "label": "first computeViewshed call in this process",
+    "ms": 36.6005
+  },
+  "headline": {
+    "grid": "256x256",
+    "cells": 65536,
+    "azBins": 1024,
+    "observer": {
+      "x": 102,
+      "y": 159,
+      "height": 24
+    },
+    "visibleTerrain": 52630,
+    "comparisons": 65535,
+    "maxSlope": 1.160447,
+    "warmMs": 26.1747,
+    "warmStats": {
+      "n": 7,
+      "min": 21.1925,
+      "median": 26.1747,
+      "p95": 31.091,
+      "max": 31.091,
+      "mean": 26.0715,
+      "stddev": 3.1922,
+      "relStddev": 0.12
+    },
+    "cellsPerMs": 2503.79
+  },
+  "baseline": {
+    "label": "definitional O(n^2) all-pairs scan (src/core.mjs allPairsViewshed)",
+    "grid": "128x128",
+    "cells": 16384,
+    "azBins": 512,
+    "comparisons": 316604,
+    "ms": 515.6671,
+    "msStats": {
+      "n": 3,
+      "min": 510.9875,
+      "median": 515.6671,
+      "p95": 524.7939,
+      "max": 524.7939,
+      "mean": 517.1495,
+      "stddev": 7.0215,
+      "relStddev": 0.01
+    },
+    "maskDiffVsFast": 0
+  },
+  "paired128": {
+    "fastMs": 4.734,
+    "fastStats": {
+      "n": 5,
+      "min": 4.5578,
+      "median": 4.734,
+      "p95": 4.9958,
+      "max": 4.9958,
+      "mean": 4.7564,
+      "stddev": 0.1948,
+      "relStddev": 0.04
+    },
+    "speedupVsAllPairs": 108.93,
+    "comparisonRatio": 19.3
+  },
+  "interpret": {
+    "warmMsBeyondCold": "warm medians exclude the first call; the cold-start number is reported separately",
+    "relStddevNote": "relStddev above 0.10 is explained in README under known limitations"
+  }
+}

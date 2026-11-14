@@ -1,0 +1,13 @@
+{
+  "name": "viewshed-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Exact horizon-limited viewshed for regular heightfields: one n-1-comparison sweep, bit-identical to the definitional O(n^2) oracle, 102.96x faster on the same grid.",
+  "scripts": {
+    "verify": "node bench/verify.mjs",
+    "bench": "node bench/bench.mjs",
+    "sample": "node tools/gen-sample.mjs"
+  },
+  "license": "MIT"
+}

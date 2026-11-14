@@ -1,0 +1,75 @@
+{
+ "note": "node-computed reference for the in-page self-check; regenerate with node tools/gen-sample.mjs",
+ "view": {
+  "x": 64,
+  "y": 64,
+  "height": 12,
+  "azBins": 512
+ },
+ "grid": {
+  "w": 128,
+  "h": 128
+ },
+ "visibleTerrain": 12714,
+ "comparisons": 16383,
+ "cells": 16384,
+ "maxSlope": 1.992596221540482,
+ "maxSlopeCell": 15245,
+ "stats": {
+  "n": 16384,
+  "min": 19.193,
+  "max": 210,
+  "mean": 83.89143988037101,
+  "relief": 190.807
+ },
+ "probes": [
+  {
+   "cell": 0,
+   "visible": 0,
+   "slope": 0.578722706227365,
+   "sector": 320
+  },
+  {
+   "cell": 1,
+   "visible": 0,
+   "slope": 0.5833617138196944,
+   "sector": 320
+  },
+  {
+   "cell": 127,
+   "visible": 0,
+   "slope": 1.676392423101055,
+   "sector": 447
+  },
+  {
+   "cell": 16383,
+   "visible": 0,
+   "slope": 1.3474312552610324,
+   "sector": 64
+  },
+  {
+   "cell": 8192,
+   "visible": 0,
+   "slope": 1.0100937499999998,
+   "sector": 256
+  },
+  {
+   "cell": 5210,
+   "visible": 1,
+   "slope": 0.39311984287570617,
+   "sector": 451
+  },
+  {
+   "cell": 11560,
+   "visible": 1,
+   "slope": 0.14351276506993793,
+   "sector": 188
+  },
+  {
+   "cell": 1646,
+   "visible": 1,
+   "slope": 1.5379780183937093,
+   "sector": 443
+  }
+ ]
+}
