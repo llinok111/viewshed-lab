@@ -82,7 +82,8 @@ Graded against `innovation.md` (last 20 entries read): no viewshed, horizon, ter
 4. **Timing variance.** The 256×256 warm relative stddev is 0.12 (>0.10). Cause: 7 reps of a ~26 ms workload in a single process, so JIT tiering and GC land inside the window; min 21.19 ms vs max 31.09 ms. The speedup number is a median-to-median ratio from the same process, and the paired 128×128 baseline has relStddev 0.01 (fast relStddev 0.04).
 5. **Memory model.** The grid is a `Float64Array` held whole; there is no out-of-core or tiled version. 256×256 is the largest measured configuration.
 6. **Not a GIS product.** No georeferencing, no earth curvature, no refraction, no earth-radius correction, no multi-observer raster union API beyond the greedy helper `greedySiting()` (16×16 candidate lattice, height-penalty-free).
-7. **`greedySiting` optimality.** Only step-wise greedy optimality is asserted (`A14`: step-1 marginal equals the brute-force maximum over all 64 candidates). The 3-viewpoint union is **not** claimed globally optimal; the size-3 union is 15,848 of 16,384 cells.
+7. **Render-layer evidence.** Browser automation is forbidden in this environment, so `index.html` + `main.js` are evidenced by `node --check main.js` (syntax), an HTTP 200 from `python3 -m http.server 4173`, a pinned importmap (`three@0.160.0`, no `latest`), and the fact that the page imports the same `src/core.mjs` the benchmarks exercise — **not** by a screenshot or a DOM run. Every number in this README comes from node.
+8. **`greedySiting` optimality.** Only step-wise greedy optimality is asserted (`A14`: step-1 marginal equals the brute-force maximum over all 64 candidates). The 3-viewpoint union is **not** claimed globally optimal; the size-3 union is 15,848 of 16,384 cells.
 
 ## Project layout
 
